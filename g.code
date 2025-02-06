@@ -1,0 +1,100 @@
+function doPost(e) {
+  try {
+    // Parse the incoming JSON data
+    const data = JSON.parse(e.postData.contents); // Get data from request
+    console.log('Received data:', data); // Log the received data
+
+    // Handle the data (e.g., save to spreadsheet, etc.)
+    const ss = SpreadsheetApp.openById('1EmUjpqRlNXlHktzPSVm1lMfSfn6HXbXZI3A28YeNX2o');
+    const sheet = ss.getSheetByName('data');
+
+    // Format timestamp for Costa Rica timezone
+    const timestamp = Utilities.formatDate(
+      new Date(), 
+      "America/Costa_Rica", 
+      "MM/dd/yyyy HH:mm:ss"
+    );
+
+    // Prepare the row data
+    const rowData = [
+      timestamp,
+      data.name || '',
+      data.phone || '',
+      data.email || '',
+      data.comments || ''
+    ];
+
+    // Append the data to the spreadsheet
+    sheet.appendRow(rowData);
+
+    // Create a response object and set the correct headers
+    const result = { success: true, message: 'Data processed successfully' };
+    const successResponse = ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader('Access-Control-Allow-Origin', '*')
+      .setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+      .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    return successResponse;
+
+  } catch (error) {
+    console.error('Error in doPost:', error); // Log the error
+    const errorResponse = ContentService.createTextOutput(JSON.stringify({ error: error.message }))
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader('Access-Control-Allow-Origin', '*')
+      .setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+      .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    return errorResponse;
+  }
+}
+
+// Setup function to initialize the spreadsheet
+function setupSheet() {
+  const ss = SpreadsheetApp.openById('1EmUjpqRlNXlHktzPSVm1lMfSfn6HXbXZI3A28YeNX2o');
+  const sheet = ss.getSheetByName('data');
+  
+  // Set up headers
+  const headers = ['Timestamp', 'Name', 'Phone', 'Email', 'Comments'];
+  
+  // Clear existing content and set headers
+  sheet.clear();
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  // Format headers
+  const headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground('#E8EAED')
+             .setFontWeight('bold')
+             .setHorizontalAlignment('center');
+  
+  // Auto-resize columns
+  sheet.autoResizeColumns(1, headers.length);
+  
+  // Freeze the header row
+  sheet.setFrozenRows(1);
+}
+
+// Test function
+function doGet() {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    message: 'Web app is running'
+  }))
+  .setMimeType(ContentService.MimeType.JSON)
+  .setHeader('Access-Control-Allow-Origin', '*')
+  .setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+  .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+
+// Function to test timezone
+function testTimezone() {
+  const now = new Date();
+  const timestamp = Utilities.formatDate(
+    now,
+    "America/Costa_Rica",
+    "MM/dd/yyyy HH:mm:ss"
+  );
+  
+  console.log('Current timestamp in Costa Rica timezone:', timestamp);
+  return timestamp;
+}
