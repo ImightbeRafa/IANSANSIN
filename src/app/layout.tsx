@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
 import "./globals.css";
 import Script from 'next/script';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const fontSans = GeistSans
+const fontMono = GeistMono
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${fontSans.variable} ${fontMono.variable} antialiased`}>
       <head>
         {/* Google Tag Manager */}
         <Script
@@ -45,9 +39,7 @@ export default function RootLayout({
         />
         {/* Other scripts can go here */}
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
